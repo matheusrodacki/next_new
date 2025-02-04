@@ -13,14 +13,18 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
+import { Alert } from '@mui/material';
 
 export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setErrorMsg('');
+
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -30,18 +34,21 @@ export default function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
         // Trate o erro conforme necessário (por exemplo, exibindo uma mensagem para o usuário)
-        console.error('Erro no login');
+        setErrorMsg(result.message || 'Erro de autenticação');
         return;
       }
-      const result = await response.json();
+
       console.log('Login realizado com sucesso:', result);
 
       // Exemplo: após autenticação bem-sucedida, redireciona para a home
       router.push('/');
     } catch (error) {
       console.error('Erro durante a requisição de login', error);
+      setErrorMsg('Erro ao conectar com o servidor');
     }
   };
 
@@ -56,6 +63,11 @@ export default function LoginForm() {
         <Typography component="h1" variant="h5">
           Entrar
         </Typography>
+        {errorMsg && (
+          <Alert severity="error" sx={{ width: '100%', mt: 2 }}>
+            {errorMsg}
+          </Alert>
+        )}
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
