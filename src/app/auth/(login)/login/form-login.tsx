@@ -19,17 +19,30 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Aqui você pode implementar a lógica de autenticação, como:
-    // - Chamar uma API para validar o usuário
-    // - Armazenar o token retornado
-    // - Tratar erros e fornecer feedback para o usuário
-    console.log('Email:', email);
-    console.log('Senha:', password);
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Exemplo: após autenticação bem-sucedida, redireciona para a home
-    router.push('/');
+      if (!response.ok) {
+        // Trate o erro conforme necessário (por exemplo, exibindo uma mensagem para o usuário)
+        console.error('Erro no login');
+        return;
+      }
+      const result = await response.json();
+      console.log('Login realizado com sucesso:', result);
+
+      // Exemplo: após autenticação bem-sucedida, redireciona para a home
+      router.push('/');
+    } catch (error) {
+      console.error('Erro durante a requisição de login', error);
+    }
   };
 
   return (
